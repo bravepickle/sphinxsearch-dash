@@ -51,9 +51,25 @@ $db->query("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path)");
 $urlPrefix = 'sphinxsearch.com/docs/';
 $crawler = new Symfony\Component\DomCrawler\Crawler();
 $crawler->addHtmlContent(file_get_contents("$resDir/sphinxsearch.com/docs/current.html"));
-$els = $crawler->filter('.toc dl a');
 
+$els = $crawler->filter('.toc dl a');
 /** @var \DOMElement $el */
 foreach ($els as $el) {
     $db->query("INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"$el->textContent\",\"Guide\",\"${urlPrefix}{$el->getAttribute('href')}\")");
+}
+
+
+$crawler = new Symfony\Component\DomCrawler\Crawler();
+$crawler->addHtmlContent(file_get_contents("$resDir/sphinxsearch.com/docs/current.html"));
+
+$els = $crawler->filter('a[href*="expr-ari-ops"]');
+
+/** @var \DOMElement $el */
+foreach ($els as $el) {
+    $listCrawler = new \Symfony\Component\DomCrawler\Crawler($el->parentNode->parentNode);
+    $links = $listCrawler->filter('a');
+    /** @var \DOMElement $child */
+    foreach ($links as $child) {
+        $db->query("INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"$child->textContent\",\"Function\",\"${urlPrefix}{$child->getAttribute('href')}\")");
+    }
 }
