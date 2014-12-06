@@ -19,8 +19,7 @@ $resDir = "$destDir/Contents/Resources/Documents";
 
 exec("rm -rf $resDir");
 exec("mkdir -p $resDir");
-exec("wget -q -F -p -P $resDir -k --reject *.js,*.txt $url");
-//exec("wget -q -F -p -P $resDir --cut-dirs=1 --reject *.js,*.txt $url");
+exec("wget -q -F -p -P $resDir -k --reject \"*.js,*.txt\" $url");
 exec("cp $filesDir/icon.png $destDir/icon.png");
 
 $plist = <<<HEREDOC
@@ -49,13 +48,12 @@ $db->query("DROP TABLE IF EXISTS searchIndex");
 $db->query("CREATE TABLE searchIndex (id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT)");
 $db->query("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path)");
 
-//$urlPrefix = 'sphinxsearch.com/docs/current.html';
-$urlPrefix = '';
+$urlPrefix = 'sphinxsearch.com/docs/';
 $crawler = new Symfony\Component\DomCrawler\Crawler();
 $crawler->addHtmlContent(file_get_contents("$resDir/sphinxsearch.com/docs/current.html"));
 $els = $crawler->filter('.toc dl a');
 
 /** @var \DOMElement $el */
 foreach ($els as $el) {
-    $db->query("INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"$el->textContent\",\"Guide\",\"$urlPrefix/{$el->getAttribute('href')}\")");
+    $db->query("INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"$el->textContent\",\"Guide\",\"${urlPrefix}{$el->getAttribute('href')}\")");
 }
