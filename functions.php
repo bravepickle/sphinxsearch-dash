@@ -104,6 +104,49 @@ function addFunctions($resDir, $db, $urlPrefix)
 
 /**
  * @param $resDir
+ * @param $db
+ * @param $urlPrefix
+ */
+function addLibraries($resDir, $db, $urlPrefix)
+{
+    $crawler = new Symfony\Component\DomCrawler\Crawler();
+    $crawler->addHtmlContent(file_get_contents("$resDir/sphinxsearch.com/docs/current.html"));
+
+    // SphinxQL
+    $els = $crawler->filter('.toc .chapter a');
+//    $els = $crawler->filter('.titlepage h2 a[name]');
+//    $els = $crawler->filter('a[name="sphinxql-reference"]');
+
+    /** @var \DOMElement $el */
+    foreach ($els as $el) {
+        $label = preg_replace('/[\d\.]+\s/', '', $el->textContent);
+        $db->query(
+            "INSERT OR IGNORE INTO searchIndex(name, type, path) " .
+            "VALUES (\"{$label}\",\"Library\",\"${urlPrefix}{$el->getAttribute('href')}\")"
+        );
+    }
+
+    // Sphinx config
+    $els = $crawler->filter('a[href*="#confgroup-source"]');
+
+    /** @var \DOMElement $el */
+    foreach ($els as $el) {
+        $listCrawler = new \Symfony\Component\DomCrawler\Crawler($el->parentNode->parentNode->parentNode);
+        $links = $listCrawler->filter('.sect2 a');
+        /** @var \DOMElement $child */
+        foreach ($links as $child) {
+            $label = preg_replace('/[\d\.]+\s/', '', $child->textContent);
+            $db->query(
+                "INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"$label\",\"Option\",\"${urlPrefix}{$child->getAttribute(
+                    'href'
+                )}\")"
+            );
+        }
+    }
+}
+
+/**
+ * @param $resDir
  * @param $urlPrefix
  * @param $filename
  * @return \Symfony\Component\DomCrawler\Crawler
