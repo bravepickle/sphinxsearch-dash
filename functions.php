@@ -36,6 +36,8 @@ function initPlistConfig($lang, $indexFile, $destDir)
 	<true/>
 	<key>dashIndexFilePath</key>
 	<string>$indexFile</string>
+	<key>DashDocSetFamily</key>
+    <string>dashtoc</string>
 </dict>
 </plist>
 HEREDOC;
@@ -112,10 +114,8 @@ function addLibraries($resDir, $db, $urlPrefix)
     $crawler = new Symfony\Component\DomCrawler\Crawler();
     $crawler->addHtmlContent(file_get_contents("$resDir/sphinxsearch.com/docs/current.html"));
 
-    // SphinxQL
+    // Libraries
     $els = $crawler->filter('.toc .chapter a');
-//    $els = $crawler->filter('.titlepage h2 a[name]');
-//    $els = $crawler->filter('a[name="sphinxql-reference"]');
 
     /** @var \DOMElement $el */
     foreach ($els as $el) {
@@ -125,8 +125,16 @@ function addLibraries($resDir, $db, $urlPrefix)
             "VALUES (\"{$label}\",\"Library\",\"${urlPrefix}{$el->getAttribute('href')}\")"
         );
     }
+}
 
-    // Sphinx config
+/**
+ * @param $db
+ * @param $urlPrefix
+ * @param $crawler
+ */
+function addOptions($db, $urlPrefix, $crawler)
+{
+// Sphinx config
     $els = $crawler->filter('a[href*="#confgroup-source"]');
 
     /** @var \DOMElement $el */
@@ -143,6 +151,44 @@ function addLibraries($resDir, $db, $urlPrefix)
             );
         }
     }
+}
+
+/**
+ * @param $db
+ * @param $urlPrefix
+ * @param \Symfony\Component\DomCrawler\Crawler $crawler
+ */
+function addToc($db, $urlPrefix, $crawler, $resDir)
+{
+    // Sphinx config
+    $els = $crawler->filter('.titlepage h2 a[name]');
+    $type = 'Category';
+    $tpl = '<a name="//apple_ref/cpp/' . $type . '/{name}" class="dashAnchor"></a>';
+
+    $search = $replace = [];
+    /** @var \DOMElement $el */
+    foreach ($els as $el) {
+        $search[] = 'name="' . $el->getAttribute('name') . '"';
+        $replace[] = $url = str_replace('{name}', rawurlencode($el->parentNode->textContent), $tpl);
+
+        $label = preg_replace('/[\d\.]+\s/', '', $el->parentNode->textContent);
+        $db->query(
+            sprintf(
+                'INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES ("$label","$type","$url")',
+                $label,
+                $type,
+                $url
+            )
+        );
+    }
+
+    $html = $crawler->html();
+
+    foreach ($search as $k => $subpattern) {
+        $html = preg_replace('~<a\s[^>]*' . preg_quote($subpattern, '~') . '.*</a>~iU', '$0' . $replace[$k], $html);
+    }
+
+    file_put_contents("$resDir/sphinxsearch.com/docs/current.html", $html);
 }
 
 /**

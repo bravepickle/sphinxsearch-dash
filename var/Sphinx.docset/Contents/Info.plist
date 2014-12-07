@@ -12,5 +12,7 @@
 	<true/>
 	<key>dashIndexFilePath</key>
 	<string>sphinxsearch.com/docs/current.html</string>
+	<key>DashDocSetFamily</key>
+    <string>dashtoc</string>
 </dict>
 </plist>
