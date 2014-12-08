@@ -154,11 +154,9 @@ function addOptions($db, $urlPrefix, $crawler)
 }
 
 /**
- * @param $db
- * @param $urlPrefix
  * @param \Symfony\Component\DomCrawler\Crawler $crawler
  */
-function addToc($db, $urlPrefix, $crawler, $resDir)
+function addToc($crawler, $resDir)
 {
     // Sphinx config
     $els = $crawler->filter('.titlepage h2 a[name]');
@@ -170,16 +168,6 @@ function addToc($db, $urlPrefix, $crawler, $resDir)
     foreach ($els as $el) {
         $search[] = 'name="' . $el->getAttribute('name') . '"';
         $replace[] = $url = str_replace('{name}', rawurlencode($el->parentNode->textContent), $tpl);
-
-        $label = preg_replace('/[\d\.]+\s/', '', $el->parentNode->textContent);
-        $db->query(
-            sprintf(
-                'INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES ("$label","$type","$url")',
-                $label,
-                $type,
-                $url
-            )
-        );
     }
 
     $html = $crawler->html();

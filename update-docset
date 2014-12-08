@@ -25,4 +25,4 @@ addGuides($crawler, $db, $urlPrefix);
 addFunctions($resDir, $db, $urlPrefix);
 addLibraries($resDir, $db, $urlPrefix);
 addOptions($db, $urlPrefix, $crawler);
-addToc($db, $urlPrefix, $crawler, $resDir);
+addToc($crawler, $resDir);
