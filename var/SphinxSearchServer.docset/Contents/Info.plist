@@ -5,7 +5,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>sphinxsearch-en</string>
 	<key>CFBundleName</key>
-	<string>Sphinx</string>
+	<string>Sphinx Search Server</string>
 	<key>DocSetPlatformFamily</key>
 	<string>sphinxsearch</string>
 	<key>isDashDocset</key>

@@ -29,7 +29,7 @@ function initPlistConfig($lang, $indexFile, $destDir)
 	<key>CFBundleIdentifier</key>
 	<string>sphinxsearch-{$lang}</string>
 	<key>CFBundleName</key>
-	<string>Sphinx</string>
+	<string>Sphinx Search Server</string>
 	<key>DocSetPlatformFamily</key>
 	<string>sphinxsearch</string>
 	<key>isDashDocset</key>

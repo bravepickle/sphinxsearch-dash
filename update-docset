@@ -2,7 +2,7 @@
 <?php
 /**
  * Updating docset
- * @author bravepickle <2bravepickle@gmail.com
+ * @author bravepickle <2bravepickle@gmail.com>
  * @license MIT
  */
 require 'vendor/autoload.php';
@@ -11,7 +11,7 @@ require 'functions.php';
 $lang = 'en';
 $filename = 'current.html';
 $url = 'http://sphinxsearch.com/docs/' . $filename;
-$destDir = dirname(__FILE__) . '/var/Sphinx.docset';
+$destDir = dirname(__FILE__) . '/var/SphinxSearchServer.docset';
 $filesDir = dirname(__FILE__) . '/files';
 $indexFile = 'sphinxsearch.com/docs/' . $filename;
 $resDir = "$destDir/Contents/Resources/Documents";
